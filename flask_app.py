@@ -19,9 +19,11 @@ def process_questions():
         headers = {"Content-Type": "application/json"}
 
         for question in questions:
-            question_text = "You are a medical assistant who gives precise and short answers to medical queries.\n\n "
-            question_text += question.get('question', '')
-
+            context = "You are a medical assistant who gives precise and short answers to medical queries.\n\n "
+            question_raw = question.get('question', '')
+            question_text = context + question_raw
+            print(f"Question raw: {question_raw}")
+            print(f"Question text: {question_text}")
             # Send a request for the current question
             data = {"inputs": question_text}
             response = requests.post(generate_url, json=data, headers=headers)
@@ -33,7 +35,7 @@ def process_questions():
             # Add the question, answer, and other metadata to the list of all answers
             all_answers.append({
                 "id": question.get('id', ''),
-                "question": question_text,
+                "question": question_raw,
                 "topic": question.get('topic', ''),
                 "answer": generated_text.strip()  # Remove leading/trailing whitespace
             })
@@ -51,11 +53,11 @@ def process_questions():
         # If an error occurs, return an error response with status code 400
         return jsonify({'error': str(e)}), 400
 
-if __name__ == '__main__':
-    app.run(debug=True)
+#if __name__ == '__main__':
+#    app.run(debug=True)
 
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=8080, debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080, debug=True)
 
 # Now, your Flask app should be running and accessible to other computers on the same network.
 # Other devices can make requests to your Flask app using your computer's IP address and the port you specified (e.g., http://your_computer_ip:8080/api/questions).
