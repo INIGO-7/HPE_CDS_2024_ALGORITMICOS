@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 import requests
 import json
 
@@ -40,9 +40,14 @@ def process_questions():
         # Construct the final response JSON
         response_json = {"questions": all_answers}
 
-        # Return the JSON response
-        return jsonify(response_json), 200
+        # Create the HTTP response with the appropriate headers
+        http_response = make_response(jsonify(response_json))
+        http_response.headers['Content-Type'] = 'application/json'
+
+        # Return the HTTP response
+        return http_response, 200
     except Exception as e:
+        # If an error occurs, return an error response with status code 400
         return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
