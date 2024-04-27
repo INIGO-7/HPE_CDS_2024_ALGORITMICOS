@@ -19,7 +19,8 @@ def process_questions():
         headers = {"Content-Type": "application/json"}
 
         for question in questions:
-            question_text = question.get('question', '')
+            question_text = "You are a medical assistant who gives precise and short answers to medical queries.\n\n "
+            question_text += question.get('question', '')
 
             # Send a request for the current question
             data = {"inputs": question_text}
@@ -52,3 +53,10 @@ def process_questions():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=8080, debug=True)
+
+# Now, your Flask app should be running and accessible to other computers on the same network.
+# Other devices can make requests to your Flask app using your computer's IP address and the port you specified (e.g., http://your_computer_ip:8080/api/questions).
+# Make sure your computer's firewall settings allow incoming connections on the specified port.
