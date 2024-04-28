@@ -13,6 +13,20 @@ from src.augmented_generation import AugmentedGeneration
 
 app = Flask(__name__)
 
+# Spanish translations for wounds
+wound_translations = {
+    "Abrasions": "Abrasiones",
+    "Bruises": "Moretones",
+    "Burns": "Quemaduras",
+    "Cuts": "Cortes",
+    "Diabetic Wounds": "Heridas diabéticas",
+    "Laceration": "Laceraciones",
+    "Normal": "Normal",
+    "Pressure Wounds": "Heridas por presión",
+    "Surgical Wounds": "Heridas quirúrgicas",
+    "Venous Wounds": "Heridas venosas"
+}
+
 ################### QUESTIONS ###################
 # DEFINE RAG MODEL -> questions
 
@@ -111,7 +125,6 @@ def handle_conversation():
 
 ################### IMAGES ###################
 
-
 # DEFINE RESNET -> images
 def load_Resnet():
     return None
@@ -138,10 +151,10 @@ def handle_image():
             pred_class, pred_idx, outputs = learn.predict(img_resized)
 
             if pred_class != "Normal":
-                answer, sources, topic = RAG_model.generate_answer(query = f"Eres un asistente médico, hispanohablante, que da respuestas concisas, precisas y completas a consultas médicas.\n\n He visto que tengo {pred_class} en mi piel. Rápido, qué hago?")
-
+                answer, sources, topic = RAG_model.generate_answer(query = f"Eres un asistente médico, hispanohablante, que da respuestas concisas, precisas y completas a consultas médicas.\n\n He visto que tengo {wound_translations[pred_class].lower()} en mi piel. Rápido, qué hago?")
                 # Create the HTTP response with the appropriate headers
-                http_response = make_response(jsonify(f"{pred_class}: {answer.strip()}"))
+                response_json ={"response": f"{wound_translations[pred_class]}: {answer}"}
+                http_response = make_response(jsonify(response_json))
                 http_response.headers['Content-Type'] = 'application/json'
                 # Return the HTTP response
                 return http_response, 200
