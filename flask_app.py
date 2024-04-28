@@ -32,11 +32,13 @@ def handle_questions():
 
         for question in questions:
 
-            answer, sources, topic = RAG_model.generate_answer(query = question)
+            question_text = question.get('question', '')
+
+            answer, sources, topic = RAG_model.generate_answer(query = question_text)
 
             all_answers.append({
             "id": question.get('id', ''),
-            "question": question.get('question', ''),
+            "question": question_text,
             "topic": topic,
             "answer": answer
             })
@@ -109,14 +111,25 @@ def handle_conversation():
 
 ################### PHOTOS ###################
 
-# DEFINE RESNET -> photos
-def load_Resnet():
-    return None
 
-@app.route('/api/photo', methods=['POST'])
-def handle_photo():
-    return None
+# # DEFINE RESNET -> photos
+# def load_Resnet():
+#     return None
 
+# RES_PATH = "../res"
+# MODELS_PATH = os.path.join(RES_PATH, "models")
+# RESNET_MODEL_PATH = os.path.join(MODELS_PATH, os.path.join("resnet", "model.pkl"))
+# learn = load_learner(RESNET_MODEL_PATH)
+
+# @app.route('/api/photo', methods=['POST'])
+# def handle_photo():
+#     if img in request.files:
+#         img = request.files["image"]
+#         img_resized = img.resize((224, 224), Image.BILINEAR)
+#         pred_class, pred_idx, outputs = learn.predict(img)
+
+
+#     return None
 
 ################### MAIN ###################
 
