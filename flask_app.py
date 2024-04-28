@@ -137,15 +137,23 @@ def handle_image():
 
             pred_class, pred_idx, outputs = learn.predict(img_resized)
 
-            # Construct the final response JSON
-            response_json = {"Predicted class": str(pred_class)}
+            if pred_class != "Normal":
+                answer, sources, topic = RAG_model.generate_answer(query = f"Eres un asistente médico, hispanohablante, que da respuestas concisas, precisas y completas a consultas médicas.\n\n He visto que tengo {pred_class} en mi piel. Rápido, qué hago?")
 
-            # Create the HTTP response with the appropriate headers
-            http_response = make_response(jsonify(response_json))
-            http_response.headers['Content-Type'] = 'application/json'
+                # Create the HTTP response with the appropriate headers
+                http_response = make_response(jsonify(f"{pred_class}: {answer.strip()}"))
+                http_response.headers['Content-Type'] = 'application/json'
+                # Return the HTTP response
+                return http_response, 200
+            else:
+                generated_text = "No se pudo detectar ninguna anomalía en la foto que has enviado." 
 
-            # Return the HTTP response
-            return http_response, 200
+                # Create the HTTP response with the appropriate headers
+                http_response = make_response(jsonify(generated_text))
+                http_response.headers['Content-Type'] = 'application/json'
+
+                # Return the HTTP response
+                return http_response, 200
         
     except Exception as e:
         # If an error occurs, return an error response with status code 400
