@@ -1,19 +1,7 @@
 import streamlit as st
-from streamlit_mic_recorder import mic_recorder, speech_to_text
+import app_components as ac
+from pathlib import Path
 
-state = st.session_state
+st.write(Path("file:///Users/unaiigartua/Desktop/Clase/HACKATON_ALGORITMICOS/res/docs/HPECDSTechChallenge_EnunciadoFinal.pdf"))
 
-if 'text_received' not in state:
-    state.text_received = []
-
-c1, c2 = st.columns(2)
-with c1:
-    st.write("Convert speech to text:")
-with c2:
-    text = speech_to_text(language='en', use_container_width=True, just_once=True, key='STT')
-
-if text:
-    state.text_received.append(text)
-
-for text in state.text_received:
-    st.text(text)
+st.markdown('[url_link](file:///Users/unaiigartua/Desktop/Clase/HACKATON_ALGORITMICOS/res/docs/HPECDSTechChallenge_EnunciadoFinal.pdf)')
