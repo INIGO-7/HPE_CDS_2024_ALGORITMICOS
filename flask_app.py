@@ -59,6 +59,13 @@ def process_questions():
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
 
+    try:
+        print("Inicializando modelos...")
+    except Exception as e:
+        print("Error inicializando modelos...")
+        print(jsonify({'error': str(e)}), 400)
+
+
 # Now, your Flask app should be running and accessible to other computers on the same network.
 # Other devices can make requests to your Flask app using your computer's IP address and the port you specified (e.g., http://your_computer_ip:8080/api/questions).
 # Make sure your computer's firewall settings allow incoming connections on the specified port.
