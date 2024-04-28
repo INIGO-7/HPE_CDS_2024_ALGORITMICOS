@@ -1,13 +1,13 @@
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response, render_template
 import requests
 import json
+from fastai.vision.all import *
+from fastai.learner import load_learner
+import PIL
+import os
+from io import BytesIO
+import base64
 
-# import os
-# import sys
-
-# root_directory = os.path.dirname(os.path.abspath(__file__))
-# src_directory = os.path.join(root_directory, 'src')
-# sys.path.insert(0, src_directory)
 
 from src.augmented_generation import AugmentedGeneration
 
@@ -109,33 +109,41 @@ def handle_conversation():
         # If an error occurs, return an error response with status code 400
         return jsonify({'error': str(e)}), 400
 
-################### PHOTOS ###################
+################### IMAGES ###################
 
 
-# # DEFINE RESNET -> photos
-# def load_Resnet():
-#     return None
+# DEFINE RESNET -> images
+def load_Resnet():
+    return None
 
-# RES_PATH = "../res"
-# MODELS_PATH = os.path.join(RES_PATH, "models")
-# RESNET_MODEL_PATH = os.path.join(MODELS_PATH, os.path.join("resnet", "model.pkl"))
-# learn = load_learner(RESNET_MODEL_PATH)
+RES_PATH = "res"
+MODELS_PATH = os.path.join(RES_PATH, "models")
+RESNET_MODEL_PATH = os.path.join(MODELS_PATH, os.path.join("resnet", "resnet.pkl"))
+learn = load_learner(RESNET_MODEL_PATH)
 
-# @app.route('/api/photo', methods=['POST'])
-# def handle_photo():
-#     if img in request.files:
-#         img = request.files["image"]
-#         img_resized = img.resize((224, 224), Image.BILINEAR)
-#         pred_class, pred_idx, outputs = learn.predict(img)
+@app.route('/api/image', methods=['POST'])
+def handle_image():
 
+    if 'image' not in request.files:
+        return "No image part", 400
+    file = request.files['image']
+    if file.filename == '':
+        return "No selected file", 400
+    if file:
+        # Convertir el objeto file en una imagen
+        image = Image.open(file.stream)
+        # Guardar la imagen en formato JPEG
+        image.save('received_image.jpeg', 'JPEG')
+        return jsonify({'message': 'Imagen recibida y guardada como JPEG'}), 200
 
-#     return None
+    return None
+
 
 ################### MAIN ###################
 
 # Initialize models when the Flask application starts
 if __name__ == '__main__':
-    print("Initializing models...")
+    print("\n-----------------------------------------------------\nInitializing models...\n-----------------------------------------------------\n")
     try:
         RAG_model = load_RAG()
         resnet_model = load_Resnet()
