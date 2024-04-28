@@ -21,7 +21,25 @@ np.__version__
 
 class ConditionClassifierBERT:
 
+    """
+    A classifier for medical conditions using BERT model from the Hugging Face Transformers library.
+
+    Attributes:
+        num_classes (int): Number of unique labels/classes in the dataset.
+        RESOURCES_PATH (str): Base path for resources.
+        DATASETS_PATH (str): Path to datasets within the resources.
+        MODELS_PATH (str): Path to save trained models.
+        tokenizer: Pretrained tokenizer from the BERT model.
+    """
+
     def __init__(self, num_classes: int):
+
+        """
+        Initializes the classifier with paths and a pretrained BERT tokenizer.
+
+        Args:
+            num_classes (int): Number of unique classes or labels in the classification problem.
+        """
 
         self.RESOURCES_PATH = "../res"
         self.DATASETS_PATH = os.path.join(self.resources_path, "datasets")
@@ -30,6 +48,17 @@ class ConditionClassifierBERT:
         self.num_classes = num_classes
 
     def xy_generation(self, df: pd.DataFrame):
+
+        """
+        Generates input features and target labels from the dataset.
+
+        Args:
+            df (pd.DataFrame): Dataframe containing the text and corresponding labels.
+
+        Returns:
+            tuple: Tuple containing arrays of texts and their corresponding labels.
+        """
+
         self.int2label = {}
 
         for i, disease in enumerate(df['label'].unique()):
@@ -43,6 +72,18 @@ class ConditionClassifierBERT:
         return (df['text'].values, df['label'].values)
 
     def train_model(self, df: pd.DataFrame, num_classes: int, batch_size: int = 8, epochs: int = 5):
+
+        """
+        Trains the BERT model using the provided DataFrame.
+
+        Args:
+            df (pd.DataFrame): DataFrame containing the data.
+            num_classes (int): Number of classes in the dataset.
+            batch_size (int): Size of each batch for training.
+            epochs (int): Number of epochs to train the model.
+
+        Saves the trained model to MODELS_PATH.
+        """
 
         X, y = self.xy_generation(df)
 
@@ -87,9 +128,32 @@ class ConditionClassifierBERT:
         model.save_pretrained(self.MODELS_PATH)
 
     def predict_disease(text : str, pipe) -> str:
+
+        """
+        Predicts the medical condition for a given text using a specified pipeline.
+
+        Args:
+            text (str): Text input for which to predict the medical condition.
+            pipe: Pipeline object used for prediction.
+
+        Returns:
+            str: Predicted medical condition.
+        """
+
         return pipe(text)[0][:2]
     
     def classify(self, model_path: str, text: str):
+
+        """
+        Classifies the input text using a trained model.
+
+        Args:
+            model_path (str): Path to the trained BERT model.
+            text (str): Text input to classify.
+
+        Returns:
+            Prediction result from the TextClassificationPipeline.
+        """
 
         model = TFAutoModelForSequenceClassification.from_pretrained(model_path)
         pipe = TextClassificationPipeline(model=model, tokenizer=self.tokenizer, top_k = self.num_classes)

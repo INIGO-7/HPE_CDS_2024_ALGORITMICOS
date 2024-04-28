@@ -6,7 +6,15 @@ from langchain.prompts import ChatPromptTemplate
 
 class AugmentedGeneration:
 
+    """
+    Class to generate augmented responses based on documents using embedding similarity search and an AI model.
+    """
+
     def __init__(self):
+        """
+        Initializes the AugmentedGeneration class by setting up paths and loading necessary resources.
+        """
+
         self.RES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'res')
         self.DOCS_PATH = os.path.join(self.RES_PATH, "docs")
         self.WELLNESS_PATH = os.path.join(self.DOCS_PATH, "Bienestar")
@@ -30,7 +38,14 @@ class AugmentedGeneration:
         embedding_function = OpenAIEmbeddings(openai_api_key=self.openai_key_secret)
         self.db = Chroma(persist_directory=self.CHROMA_PATH, embedding_function=embedding_function)
 
-    def get_openai_keys(self, file_path: str) -> None:
+    def get_openai_keys(self, file_path: str):
+        """
+        Retrieves OpenAI API keys from a given file path.
+        
+        :param file_path: Path to the file containing OpenAI keys.
+        :return: Tuple containing the API key name and secret.
+        """
+
         keys = {}
 
         try:
@@ -47,13 +62,15 @@ class AugmentedGeneration:
         self.openai_key_name, self.openai_key_secret = keys.get('name'), keys.get('secret')
 
     def generate_answer(self, query: str):
+        """
+        Generates an answer to a given query using similarity search and AI model generation.
+        
+        :param query: String containing the query to be answered.
+        :return: Tuple containing the generated answer, sources of the documents used, and the inferred topic.
+        """
 
         # Search the DB.
         results = self.db.similarity_search_with_score(query, k=5)
-
-        # if len(results) == 0 or results[0][1] < 0.7:
-        #     print(f"Unable to find matching results!")
-        #     return
 
         context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
         prompt_template = ChatPromptTemplate.from_template(self.PROMPT_TEMPLATE)
