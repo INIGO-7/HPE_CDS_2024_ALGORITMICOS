@@ -75,7 +75,7 @@ def handle_conversation():
         headers = {"Content-Type": "application/json"}
 
         for question in questions:
-            context = "You are a medical assistant who gives precise and short answers to medical queries.\n\n "
+            context = "Eres un asistente médico que da respuestas concisas, precisas y completas a consultas médicas.\n\n "
             question_raw = question.get('question', '')
             question_text = context + question_raw
             print(f"Question raw: {question_raw}")
@@ -123,20 +123,33 @@ learn = load_learner(RESNET_MODEL_PATH)
 
 @app.route('/api/image', methods=['POST'])
 def handle_image():
+    try:
+        if 'image' not in request.files:
+            return "No image part", 400
+        file = request.files['image']
+        if file.filename == '':
+            return "No selected file", 400
+        if file:
+            # Convertir el objeto file en una imagen
+            image = Image.open(file.stream)
+            # Guardar la imagen en formato JPEG
+            img_resized = image.resize((224, 224), Image.BILINEAR)  # Resize the image to match the input size expected by the model
 
-    if 'image' not in request.files:
-        return "No image part", 400
-    file = request.files['image']
-    if file.filename == '':
-        return "No selected file", 400
-    if file:
-        # Convertir el objeto file en una imagen
-        image = Image.open(file.stream)
-        # Guardar la imagen en formato JPEG
-        image.save('received_image.jpeg', 'JPEG')
-        return jsonify({'message': 'Imagen recibida y guardada como JPEG'}), 200
+            pred_class, pred_idx, outputs = learn.predict(img_resized)
 
-    return None
+            # Construct the final response JSON
+            response_json = {"Predicted class": str(pred_class)}
+
+            # Create the HTTP response with the appropriate headers
+            http_response = make_response(jsonify(response_json))
+            http_response.headers['Content-Type'] = 'application/json'
+
+            # Return the HTTP response
+            return http_response, 200
+        
+    except Exception as e:
+        # If an error occurs, return an error response with status code 400
+        return jsonify({'error': str(e)}), 400
 
 
 ################### MAIN ###################
