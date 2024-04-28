@@ -11,6 +11,7 @@ from tensorflow import keras
 
 from transformers import AutoTokenizer
 from transformers import TFAutoModelForSequenceClassification
+from transformers import TextClassificationPipeline
 
 from keras.preprocessing.text import Tokenizer
 from sklearn.model_selection import train_test_split
@@ -18,58 +19,57 @@ from sklearn.model_selection import train_test_split
 plt.style.use('ggplot')
 np.__version__
 
-class ConditionClassificationModel:
+class ConditionClassifierBERT:
 
-    def __init__(self):
+    def __init__(self, num_classes: int):
 
         self.RESOURCES_PATH = "../res"
         self.DATASETS_PATH = os.path.join(self.resources_path, "datasets")
         self.MODELS_PATH = os.path.join(self.resources_path, "models")
+        self.tokenizer = AutoTokenizer.from_pretrained("bert-base-cased")
+        self.num_classes = num_classes
 
-    def train_model(self, df: pd.DataFrame, num_classes: int):
-
-        int2label = {}
+    def xy_generation(self, df: pd.DataFrame):
+        self.int2label = {}
 
         for i, disease in enumerate(df['label'].unique()):
-            int2label[i] = disease
+            self.int2label[i] = disease
 
-        label2int = {v : k for k, v in int2label.items()}
-        num_classes = len(int2label)
+        self.label2int = {v : k for k, v in self.int2label.items()}
 
-        df['label'] = df['label'].map(lambda x: label2int[x]).astype("category")
+        df['label'] = df['label'].map(lambda x: self.label2int[x]).astype("category")
         df['text'] = df['text'].astype("str")
 
-        X, y = df['text'].values, df['label'].values
+        return (df['text'].values, df['label'].values)
+
+    def train_model(self, df: pd.DataFrame, num_classes: int, batch_size: int = 8, epochs: int = 5):
+
+        X, y = self.xy_generation(df)
 
         x_tokenizer = Tokenizer(filters = '')
         x_tokenizer.fit_on_texts(X)
-        x_vocab = len(x_tokenizer.word_index) + 1
-        print("X vocab:", x_vocab)
 
         train_x, val_x, train_y, val_y = train_test_split(X, y, test_size = 0.1, stratify = y)
         train_x.shape, val_x.shape, train_y.shape, val_y.shape
 
-        BATCH_SIZE = 8
-
-        tokenizer = AutoTokenizer.from_pretrained("bert-base-cased")
-        train_encodings = tokenizer(list(train_x), padding="max_length", truncation=True)
-        val_encodings = tokenizer(list(val_x), padding="max_length", truncation=True)
+        train_encodings = self.tokenizer(list(train_x), padding="max_length", truncation=True)
+        val_encodings = self.tokenizer(list(val_x), padding="max_length", truncation=True)
 
         train_dataset = tf.data.Dataset.from_tensor_slices((
             dict(train_encodings),
             train_y
-        )).batch(BATCH_SIZE)
+        )).batch(batch_size)
 
         val_dataset = tf.data.Dataset.from_tensor_slices((
             dict(val_encodings),
             val_y
-        )).batch(BATCH_SIZE)
+        )).batch(batch_size)
 
         model = TFAutoModelForSequenceClassification.from_pretrained(
             "bert-base-cased", 
             num_labels = num_classes, 
-            id2label = int2label, 
-            label2id = label2int,
+            id2label = self.int2label, 
+            label2id = self.label2int,
             output_attentions = True
         )
 
@@ -79,11 +79,19 @@ class ConditionClassificationModel:
             metrics = ['accuracy']
         )
 
-        EPOCHS = 5
-
         model.fit(train_dataset,
-            epochs = EPOCHS,
+            epochs = epochs,
             validation_data = val_dataset
         )
 
         model.save_pretrained(self.MODELS_PATH)
+
+    def predict_disease(text : str, pipe) -> str:
+        return pipe(text)[0][:2]
+    
+    def classify(self, model_path: str, text: str):
+
+        model = TFAutoModelForSequenceClassification.from_pretrained(model_path)
+        pipe = TextClassificationPipeline(model=model, tokenizer=self.tokenizer, top_k = self.num_classes)
+
+        return self.predict_disease(text, pipe)
