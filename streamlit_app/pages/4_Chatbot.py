@@ -1,6 +1,16 @@
 import streamlit as st
 import app_components as ac
 import requests
+import streamlit_extras
+from streamlit_extras.bottom_container import bottom 
+from streamlit_mic_recorder import mic_recorder, speech_to_text
+
+state = st.session_state
+
+write_message_chat = False
+write_message_audio = False
+
+
 
 
 urlMixtra = "http://10.10.6.10:8083/generate"
@@ -73,16 +83,43 @@ for message in st.session_state.messages:
         st.write(message["content"])
 
 
-if prompt := st.chat_input():
-    st.session_state.messages.append({"role": "user", "content": prompt})
+
+
+with bottom():
+    with st.container():
+        left, right = st.columns([0.8, 0.2])
+        with left:
+            if prompt := st.chat_input():
+                write_message_chat = True
+                print (type(prompt))
+                mandar=prompt
+                st.session_state.messages.append({"role": "user", "content": prompt})     
+                
+        with right:
+            if text := speech_to_text(language='es-ES', use_container_width=True, just_once=True, key='STT'):
+                write_message_audio = True
+                print(type(text))
+                mandar=text
+                st.session_state.messages.append({"role": "user", "content": text})
+                
+                
+              
+if write_message_chat:
     with st.chat_message("user"):
-        st.write(prompt)
+                st.write(prompt)     
+
+if write_message_audio:
+    with st.chat_message("user"):
+                st.write(text)   
+
+write_message_chat = False
+write_message_audio = False
 
 
 if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Pensando..."):
-            response = generate_endpoint_response(urlEndpoint, prompt)
+            response = generate_endpoint_response(urlEndpoint, mandar)
             placeholder = st.empty()
             # if response.status_code == 200:
             #     response_json = response.json()
