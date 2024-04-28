@@ -95,7 +95,9 @@ def handle_conversation():
             print(f"Question raw: {question_raw}")
             print(f"Question text: {question_text}")
             # Send a request for the current question
-            data = {"inputs": question_text}
+            data = {"inputs": question_text,
+                    "max_new_tokens": 500
+                    }
             response = requests.post(generate_url, json=data, headers=headers)
 
             # Get the answer for the current question (using the response content directly)

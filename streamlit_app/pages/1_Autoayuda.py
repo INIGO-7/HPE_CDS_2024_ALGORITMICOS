@@ -118,7 +118,6 @@ if write_message_audio:
     with st.chat_message("user"):
         st.write(text)   
 
-st.warning(disclaimer)   
 write_message_chat = False
 write_message_audio = False
 

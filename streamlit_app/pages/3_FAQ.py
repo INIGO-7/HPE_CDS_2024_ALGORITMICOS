@@ -37,7 +37,7 @@ with st.expander("¿Es privado el diagnóstico que recibo?", expanded=False):
 
 
 with st.expander("¿Cómo funciona el diagnosticador?", expanded=False):
-    st.markdown("El diagnosticador utiliza un modelo de lenguaje natural entrenado con diagnósticos recividos para algunas enfermedades, además de diferentes fuentes reconocidas de salud y bienestar.\n\n Para más información sobre el funcionamiento del modelo, visita el apartado 'Sobre las Herramientas' en el menú lateral.")
+    st.markdown("El diagnosticador utiliza un modelo de lenguaje natural entrenado con diagnósticos recibidos para algunas enfermedades, además de diferentes fuentes reconocidas de salud y bienestar.\n\n Para más información sobre el funcionamiento del modelo, visita el apartado 'Sobre las Herramientas' en el menú lateral.")
 
 with st.expander("¿Que enfermedades puede predecir?", expanded=False):
     cols = st.columns(num_columns)
