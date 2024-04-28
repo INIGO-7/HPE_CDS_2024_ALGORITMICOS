@@ -3,6 +3,7 @@ import os
 
 sys.path.insert(0, os.path.abspath('../src'))
 from full_recommendation import *
+from transformers import MarianMTModel, MarianTokenizer
 
 
 import streamlit as st
@@ -170,6 +171,10 @@ first_aid_path = os.path.join(DATASETS_PATH, "Medical_Aid_v2.json")
 model_path = os.path.join(MODELS_PATH, "bert_finetuned")
 classifier = ConditionClassifierBERT(24, first_aid_path)
 
+model_name = "Helsinki-NLP/opus-mt-en-es"
+model = MarianMTModel.from_pretrained(model_name)
+tokenizer = MarianTokenizer.from_pretrained(model_name)
+
 
 
 
@@ -178,11 +183,18 @@ if st.session_state.messages[-1]["role"] != "assistant":
         with st.chat_message("assistant"):
             with st.spinner("Pensando..."):
                 condition, advice = classifier.get_first_aid(model_path, prompt)
-                response = f"La condición detectada es: {condition}. Aquí tienes algunos consejos: {advice}"
+                response = f"The detected condition is: {condition}. Aquí tienes algunos consejos: {advice[0]}"
+
+
+                input_ids = tokenizer.encode(response, return_tensors="pt")
+                translated_tokens = model.generate(input_ids)
+                respuesta = tokenizer.decode(translated_tokens[0], skip_special_tokens=True)
+
+                
                 placeholder = st.empty()
 
-                placeholder.markdown(response)
-    message = {"role": "assistant", "content": response}
+                placeholder.markdown(respuesta)
+    message = {"role": "assistant", "content": respuesta}
     st.session_state.messages.append(message)
     st.warning(disclaimer)
 
