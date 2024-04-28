@@ -13,6 +13,20 @@ from src.augmented_generation import AugmentedGeneration
 
 app = Flask(__name__)
 
+# Spanish translations for wounds
+wound_translations = {
+    "Abrasions": "Abrasiones",
+    "Bruises": "Moretones",
+    "Burns": "Quemaduras",
+    "Cuts": "Cortes",
+    "Diabetic Wounds": "Heridas diabéticas",
+    "Laceration": "Laceraciones",
+    "Normal": "Normal",
+    "Pressure Wounds": "Heridas por presión",
+    "Surgical Wounds": "Heridas quirúrgicas",
+    "Venous Wounds": "Heridas venosas"
+}
+
 ################### QUESTIONS ###################
 # DEFINE RAG MODEL -> questions
 
@@ -111,7 +125,6 @@ def handle_conversation():
 
 ################### IMAGES ###################
 
-
 # DEFINE RESNET -> images
 def load_Resnet():
     return None
@@ -137,15 +150,23 @@ def handle_image():
 
             pred_class, pred_idx, outputs = learn.predict(img_resized)
 
-            # Construct the final response JSON
-            response_json = {"Predicted class": str(pred_class)}
+            if pred_class != "Normal":
+                answer, sources, topic = RAG_model.generate_answer(query = f"Eres un asistente médico, hispanohablante, que da respuestas concisas, precisas y completas a consultas médicas.\n\n He visto que tengo {wound_translations[pred_class].lower()} en mi piel. Rápido, qué hago?")
+                # Create the HTTP response with the appropriate headers
+                response_json ={"response": f"{wound_translations[pred_class]}: {answer}"}
+                http_response = make_response(jsonify(response_json))
+                http_response.headers['Content-Type'] = 'application/json'
+                # Return the HTTP response
+                return http_response, 200
+            else:
+                generated_text = "No se pudo detectar ninguna anomalía en la foto que has enviado." 
 
-            # Create the HTTP response with the appropriate headers
-            http_response = make_response(jsonify(response_json))
-            http_response.headers['Content-Type'] = 'application/json'
+                # Create the HTTP response with the appropriate headers
+                http_response = make_response(jsonify(generated_text))
+                http_response.headers['Content-Type'] = 'application/json'
 
-            # Return the HTTP response
-            return http_response, 200
+                # Return the HTTP response
+                return http_response, 200
         
     except Exception as e:
         # If an error occurs, return an error response with status code 400
