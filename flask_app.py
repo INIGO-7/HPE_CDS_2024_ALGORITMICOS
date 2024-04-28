@@ -4,8 +4,18 @@ import json
 
 app = Flask(__name__)
 
+################### QUESTIONS ###################
+
 @app.route('/api/questions', methods=['POST'])
-def process_questions():
+
+
+# DEFINE RAG MODEL -> questions
+
+def load_RAG():
+    return None
+
+@app.route('/api/text', methods=['POST'])
+def handle_questions():
     try:
         # Get the JSON data from the request
         data = request.json
@@ -53,17 +63,33 @@ def process_questions():
         # If an error occurs, return an error response with status code 400
         return jsonify({'error': str(e)}), 400
 
-#if __name__ == '__main__':
-#    app.run(debug=True)
+################### PHOTOS ###################
+
+# DEFINE RESNET -> photos
+def load_Resnet():
+    return None
+
+@app.route('/api/photo', methods=['POST'])
+def handle_photo():
+    return None
+
+
+################### MAIN ###################
+
+# Initialize models when the Flask application starts
+if __name__ == '__main__':
+    print("Initializing models...")
+    try:
+        RAG_model = load_RAG()
+        resnet_model = load_Resnet()
+        print("Models initialized successfully.")
+    except Exception as e: 
+        print("Error initializing models:", str(e))
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
 
-    try:
-        print("Inicializando modelos...")
-    except Exception as e:
-        print("Error inicializando modelos...")
-        print(jsonify({'error': str(e)}), 400)
 
 
 # Now, your Flask app should be running and accessible to other computers on the same network.
