@@ -5,7 +5,19 @@ import os
 
 class ImageClassifier():
 
+    """
+    A classifier for images using a pretrained ResNet model from the fastai library.
+
+    Attributes:
+        IMGS_PATH (str): Path where images are stored.
+        RESNET_MODEL_PATH (str): Path to the pretrained ResNet model.
+    """
+
     def __init__(self):
+
+        """
+        Initializes the ImageClassifier by setting up the path to the image resources and model.
+        """
 
         RES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'res')
         MODELS_PATH = os.path.join(RES_PATH, "models")
@@ -13,6 +25,18 @@ class ImageClassifier():
         self.RESNET_MODEL_PATH = os.path.join(MODELS_PATH, os.path.join("resnet", "model.pkl"))
         
     def classify_img(self, img_name):
+
+        """
+        Classifies an image by name using the pretrained ResNet model.
+
+        Args:
+            img_name (str): The filename of the image to classify.
+
+        Returns:
+            tuple: A tuple containing the predicted class, the index of the predicted class, 
+            and the output tensor of class probabilities.
+        """
+
         img = os.path.join(self.IMGS_PATH, img_name)
 
         learn = load_learner(self.RESNET_MODEL_PATH)
@@ -22,6 +46,13 @@ class ImageClassifier():
         return learn.predict(img)
 
     def classify_and_display(self, img_name):
+
+        """
+        Classifies an image and displays it with the predicted class label.
+
+        Args:
+            img_name (str): The filename of the image to classify and display.
+        """
 
         pred_class, pred_idx, outputs = self.classify_img(img_name)
 
