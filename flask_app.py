@@ -2,20 +2,56 @@ from flask import Flask, request, jsonify, make_response
 import requests
 import json
 
+from src.augmented_generation import AugmentedGeneration
+
 app = Flask(__name__)
 
+
 ################### QUESTIONS ###################
-
-@app.route('/api/questions', methods=['POST'])
-
-
 # DEFINE RAG MODEL -> questions
 
 def load_RAG():
-    return None
+    return AugmentedGeneration()
 
-@app.route('/api/text', methods=['POST'])
+@app.route('/api/questions', methods=['POST'])
 def handle_questions():
+    try:
+        # Get the JSON data from the request
+        data = request.json
+        questions = data.get('questions', [])
+        # Initialize a list to store the answers
+        all_answers = []
+
+        headers = {"Content-Type": "application/json"}
+
+        for question in questions:
+
+            answer, sources, topic = RAG_model.generate_answer(query = question)
+
+            all_answers.append({
+            "id": question.get('id', ''),
+            "question": question.get('question', ''),
+            "topic": topic,
+            "answer": answer
+            })
+
+        # Construct the final response JSON
+        response_json = {"questions": all_answers}
+
+        # Create the HTTP response with the appropriate headers
+        http_response = make_response(jsonify(response_json))
+        http_response.headers['Content-Type'] = 'application/json'
+        # Return the HTTP response
+        return http_response, 200
+    except Exception as e:
+        # If an error occurs, return an error response with status code 400
+        return jsonify({'error': str(e)}), 400
+
+
+################### CONVERSATION ###################
+
+@app.route('/api/converse', methods=['POST'])
+def handle_conversation():
     try:
         # Get the JSON data from the request
         data = request.json
