@@ -40,6 +40,7 @@ st.markdown("""
 <div style="text-align: justify;">
     Esta herramienta se encuentra en el apartado 'Diagnóstico con IA' y permite a los usuarios obtener una predicción de las enfermedades más probables para sus síntomas. <br><br>
     Para obtener la predicción, el usuario debe introducir una descripción de sus síntomas en el cuadro de texto y hacer clic en el botón 'Diagnóstico'. Con esta información, el modelo de diagnóstico mediante Lenguaje Natural realiza una predicción y muestra las dos enfermedades más probables junto con sus probabilidades. <br><br>
+    Tambien una vez recivido el caso de diagnostico lo busca en los distintos tipos de mas probables de diagnostico segun diferentes organizaciones de salud reconocidas y te da una manera de afrontarlo. <br><br>
     Esta herramienta solo puede diagnosticar enfermedades con las que ha sido entrenada y no debe ser tomada como un diagnóstico definitivo. Si tienes dudas sobre tu salud, por favor, consulta a un médico. <br><br>
     Ejemplo de uso:<br><br>
 </div>       
