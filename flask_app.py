@@ -96,7 +96,7 @@ def handle_conversation():
             print(f"Question text: {question_text}")
             # Send a request for the current question
             data = {"inputs": question_text,
-                    "parameters":{"max_new_tokens":1500}
+                    "parameters":{"max_new_tokens":500}
                     }
             response = requests.post(generate_url, json=data, headers=headers)
 
