@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
+import json
 import os
 from tqdm.notebook import tqdm
 import re
@@ -13,7 +13,7 @@ from transformers import AutoTokenizer
 from transformers import TFAutoModelForSequenceClassification
 from transformers import TextClassificationPipeline
 
-from keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.text import Tokenizer
 from sklearn.model_selection import train_test_split
 
 plt.style.use('ggplot')
@@ -32,7 +32,7 @@ class ConditionClassifierBERT:
         tokenizer: Pretrained tokenizer from the BERT model.
     """
 
-    def __init__(self, num_classes: int):
+    def __init__(self, num_classes: int, first_aid_data_path):
 
         """
         Initializes the classifier with paths and a pretrained BERT tokenizer.
@@ -41,11 +41,13 @@ class ConditionClassifierBERT:
             num_classes (int): Number of unique classes or labels in the classification problem.
         """
 
-        self.RESOURCES_PATH = "../res"
-        self.DATASETS_PATH = os.path.join(self.resources_path, "datasets")
-        self.MODELS_PATH = os.path.join(self.resources_path, "models")
+        self.RES_PATH = os.path.join("../res")
+        self.DATASETS_PATH = os.path.join(self.RES_PATH, "datasets")
+        self.MODELS_PATH = os.path.join(self.RES_PATH, "models")
         self.tokenizer = AutoTokenizer.from_pretrained("bert-base-cased")
         self.num_classes = num_classes
+
+        self.first_aid_data = self.load_data(first_aid_data_path)
 
     def xy_generation(self, df: pd.DataFrame):
 
@@ -127,7 +129,7 @@ class ConditionClassifierBERT:
 
         model.save_pretrained(self.MODELS_PATH)
 
-    def predict_disease(text : str, pipe) -> str:
+    def predict_disease(self, text : str, pipe) -> str:
 
         """
         Predicts the medical condition for a given text using a specified pipeline.
@@ -159,3 +161,40 @@ class ConditionClassifierBERT:
         pipe = TextClassificationPipeline(model=model, tokenizer=self.tokenizer, top_k = self.num_classes)
 
         return self.predict_disease(text, pipe)
+    
+    def load_data(self, filename):
+        # Load JSON data from a file
+        with open(filename, 'r') as file:
+            data = json.load(file)
+        return data
+
+    def get_advice_by_tag(self, data, tag):
+        # Search for the tag in the data and return the corresponding advice
+        for entry in data['intents']:
+            if entry['tag'].lower() == tag.lower():
+                return entry['responses']
+        return "No advice found for this tag."
+
+    def get_first_aid(self, model_path: str, text: str):
+        
+        condition = self.classify(model_path, text)[0]['label']
+        return condition, self.get_advice_by_tag(self.first_aid_data, condition)
+
+if __name__ == "__main__":
+
+    prompt = "I was with my son in a boat and then he fell overboard. We rescued him from the water, but he is now unconscious. What should I do?"
+
+    RES_PATH = os.path.join("../res")
+    DATASETS_PATH = os.path.join(RES_PATH, "datasets")
+    MODELS_PATH = os.path.join(RES_PATH, "models")
+    first_aid_path = os.path.join(DATASETS_PATH, "Medical_Aid_v2.json")
+    # model_path = os.path.join(MODELS_PATH, os.path.join("bert_finetuned", "tf_model.h5"))
+    model_path = os.path.join(MODELS_PATH, "bert_finetuned")
+
+    classifier = ConditionClassifierBERT(24, first_aid_path)
+    condition, advice = classifier.get_first_aid(model_path, prompt)
+
+    print("------------------------------")
+    print(f"Prompt: {prompt}")
+    print(f"Condition: {condition}")
+    print(f"Advice: {advice}")

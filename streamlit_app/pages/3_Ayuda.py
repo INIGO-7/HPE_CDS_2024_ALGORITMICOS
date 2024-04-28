@@ -1,3 +1,11 @@
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath('../src'))
+from full_recommendation import *
+from transformers import MarianMTModel, MarianTokenizer
+
+
 import streamlit as st
 import app_components as ac
 import requests
@@ -10,6 +18,10 @@ from PIL import Image
 import requests
 from fastai.learner import load_learner
 
+from transformers import AutoTokenizer
+from transformers import TFAutoModelForSequenceClassification
+from transformers import TextClassificationPipeline
+
 
 state = st.session_state
 
@@ -20,7 +32,7 @@ write_message_image = False
 
 
 
-urlMixtra = "http://10.10.6.10:8083/generate"
+urlMixtra = "http://10.10.6.67:8080/api/converse"
 urlEndpoint = "http://10.10.6.67:8080/api/questions"
 urlImage = "http://10.10.6.67:8080/api/image"
 
@@ -95,83 +107,74 @@ for message in st.session_state.messages:
 with bottom():
     if len(st.session_state.messages) <= 1:
         with st.container():
-            left, right = st.columns([0.8, 0.2])
-            with left:
+            uploaded_file = st.file_uploader("Elige una imagen...", type=['jpg', 'jpeg', 'png'])
+            if uploaded_file is not None:
+                # Mostrar la imagen cargada
+                st.image(uploaded_file, caption='Imagen cargada.', use_column_width=True)
 
-                uploaded_file = st.file_uploader("Elige una imagen...", type=['jpg', 'jpeg', 'png'])
-                if uploaded_file is not None:
-                    # Mostrar la imagen cargada
-                    st.image(uploaded_file, caption='Imagen cargada.', use_column_width=True)
-
-                    # Enviar la imagen al servidor Flask
-                    if st.button('Enviar imagen'):
-                        files = {'image': uploaded_file.getvalue()}
-                        image_response = requests.post(urlImage, files=files)
-
-                        # Mostrar respuesta del servidor
-                        #st.text(image_response.text)
-                        write_message_image = True
-                        message = {"role": "assistant", "content": (image_response.text).encode('latin1').decode('utf-8')}
-                        st.session_state.messages.append(message)
+                # Enviar la imagen al servidor Flask
+                if st.button('Enviar imagen'):
+                    files = {'image': uploaded_file.getvalue()}
+                    image_response_raw = requests.post(urlImage, files=files)
+                    image_response = image_response_raw.json()["response"]
+                    # Mostrar respuesta del servidor
+                    #st.text(image_response.text)
+                    write_message_image = True
+                    message = {"role": "assistant", "content": (image_response)}
+                    st.session_state.messages.append(message)
 
 
-                    
-                     
-                     
-                     
+    
 
-    with st.container():
-        left, right = st.columns([0.8, 0.2])
-        with left:
-            if prompt := st.chat_input():
-                write_message_chat = True
-                print (type(prompt))
-                mandar=prompt
-                ocultar = True
-                st.session_state.messages.append({"role": "user", "content": prompt})     
-                
-        with right:
-            if text := speech_to_text(language='es-ES', use_container_width=True, just_once=True, key='STT'):
-                write_message_audio = True
-                print(type(text))
-                mandar=text
-                ocultar = True
-                st.session_state.messages.append({"role": "user", "content": text})
-                
-                
-              
-if write_message_chat:
+if prompt := st.chat_input():
+    write_message_chat = True
+    print (type(prompt))
+    mandar=prompt
+    st.session_state.messages.append({"role": "user", "content": prompt})  
     with st.chat_message("user"):
-        st.write(prompt)  
-        st.warning(disclaimer)   
-
-if write_message_audio:
-    with st.chat_message("user"):
-        st.write(text)   
+        st.write(prompt)     
+                
 
 if write_message_image:
     with st.chat_message("assistant"):
-        st.write(image_response.text.encode('latin1').decode('utf-8'))
+        st.write(image_response)
     
 write_message_image = False
-write_message_chat = False
-write_message_audio = False
+
+
+RES_PATH = "../res"
+DATASETS_PATH = os.path.join(RES_PATH, "datasets")
+MODELS_PATH = os.path.join(RES_PATH, "models")
+first_aid_path = os.path.join(DATASETS_PATH, "Medical_Aid_v2.json")
+model_path = os.path.join(MODELS_PATH, "bert_finetuned")
+classifier = ConditionClassifierBERT(24, first_aid_path)
+
+model_name = "Helsinki-NLP/opus-mt-en-es"
+model = MarianMTModel.from_pretrained(model_name)
+tokenizer = MarianTokenizer.from_pretrained(model_name)
+
+
 
 
 if st.session_state.messages[-1]["role"] != "assistant":
-    with st.chat_message("assistant"):
-        with st.spinner("Pensando..."):
-            response = generate_endpoint_response(urlEndpoint, mandar)
-            placeholder = st.empty()
-            # if response.status_code == 200:
-            #     response_json = response.json()
-            #     generated_text = response_json.get('generated_text', 'No generated text found')
-            # else:
-            #     generated_text = "Error en la solicitud: " + str(response.status_code)
-            response = response.json()["questions"][0]["answer"]
-            placeholder.markdown(response)
-    message = {"role": "assistant", "content": response}
+    if len(st.session_state.messages) <= 2:
+        with st.chat_message("assistant"):
+            with st.spinner("Pensando..."):
+                condition, advice = classifier.get_first_aid(model_path, prompt)
+                response = f"The detected condition is: {condition}. Aquí tienes algunos consejos: {advice[0]}"
+
+
+                input_ids = tokenizer.encode(response, return_tensors="pt")
+                translated_tokens = model.generate(input_ids)
+                respuesta = tokenizer.decode(translated_tokens[0], skip_special_tokens=True)
+
+                
+                placeholder = st.empty()
+
+                placeholder.markdown(respuesta)
+    message = {"role": "assistant", "content": respuesta}
     st.session_state.messages.append(message)
     st.warning(disclaimer)
+
 
 

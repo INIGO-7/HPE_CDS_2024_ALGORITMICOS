@@ -15,17 +15,15 @@ state = st.session_state
 
 write_message_chat = False
 write_message_audio = False
-write_message_image = False
 
 
 
 
-urlMixtra = "http://10.10.6.10:8083/generate"
-urlEndpoint = "http://10.10.6.67:8080/api/questions"
-urlImage = "http://10.10.6.67:8080/api/image"
+urlMixtra = "http://10.10.6.67:8080/api/converse"
+urlRiga = "http://10.10.6.67:8080/api/questions"
 
-def generate_HPT_response(prompt_input):
-    string_dialogue = """Tú eres Assistant, un asistente médico para hispanohablantes siempre darás respuestas veraces, y completas en Español. \n\n"""
+def generate_MIXTRA_response(url, prompt_input):
+    string_dialogue = """Tú eres Assistant, un asistente médico para hispanohablantes siempre darás respuestas veraces, completas y breves en Español. \n\n"""
     for dict_message in st.session_state.messages:
         if dict_message["role"] == "user":
             string_dialogue += "User: " + dict_message["content"] + "\n\n"
@@ -33,17 +31,18 @@ def generate_HPT_response(prompt_input):
             string_dialogue += "Assistant: " + dict_message["content"] + "\n\n"
 
     print(f"{string_dialogue} Assistant: ")
+
     data = {
-        "inputs": f"{string_dialogue}  Assistant: "
+        "questions": [
+            {"id": 1, "question": f"{string_dialogue}  Assistant:  "}
+        ]
     }
-    headers = {
-        "Content-Type": "application/json"
-    }
-    response = requests.post(urlMixtra, json=data, headers=headers)
-    return response
+
+    response_raw = requests.post(url, json=data)
+    return response_raw
 
 
-def generate_endpoint_response(url, prompt_input):
+def generate_RIGA_response(url, prompt_input):
 
     data = {
         "questions": [
@@ -71,7 +70,7 @@ st.set_page_config(
 
 
 def clear_chat_history():
-    st.session_state.messages = [{"role": "assistant", "content": "Cuéntame los síntomas que presentas o mándame una imagen."}]
+    st.session_state.messages = [{"role": "assistant", "content": "Cuéntame los síntomas que presentas."}]
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 st.sidebar.markdown("---")
 
@@ -83,7 +82,7 @@ ac.render_sidebar()
 st.info(more_info)
 
 if "messages" not in st.session_state.keys():
-    st.session_state.messages = [{"role": "assistant", "content": "Cuéntame los síntomas que presentas o mándame una imagen."}]
+    st.session_state.messages = [{"role": "assistant", "content": "Cuéntame los síntomas que presentas."}]
 
 
 for message in st.session_state.messages:
@@ -92,34 +91,7 @@ for message in st.session_state.messages:
 
 
 
-with bottom():
-    if len(st.session_state.messages) <= 1:
-        with st.container():
-            left, right = st.columns([0.8, 0.2])
-            with left:
-
-                uploaded_file = st.file_uploader("Elige una imagen...", type=['jpg', 'jpeg', 'png'])
-                if uploaded_file is not None:
-                    # Mostrar la imagen cargada
-                    st.image(uploaded_file, caption='Imagen cargada.', use_column_width=True)
-
-                    # Enviar la imagen al servidor Flask
-                    if st.button('Enviar imagen'):
-                        files = {'image': uploaded_file.getvalue()}
-                        image_response = requests.post(urlImage, files=files)
-
-                        # Mostrar respuesta del servidor
-                        #st.text(image_response.text)
-                        write_message_image = True
-                        message = {"role": "assistant", "content": (image_response.text).encode('latin1').decode('utf-8')}
-                        st.session_state.messages.append(message)
-
-
-                    
-                     
-                     
-                     
-
+with bottom():                
     with st.container():
         left, right = st.columns([0.8, 0.2])
         with left:
@@ -127,7 +99,6 @@ with bottom():
                 write_message_chat = True
                 print (type(prompt))
                 mandar=prompt
-                ocultar = True
                 st.session_state.messages.append({"role": "user", "content": prompt})     
                 
         with right:
@@ -135,7 +106,6 @@ with bottom():
                 write_message_audio = True
                 print(type(text))
                 mandar=text
-                ocultar = True
                 st.session_state.messages.append({"role": "user", "content": text})
                 
                 
@@ -143,33 +113,32 @@ with bottom():
 if write_message_chat:
     with st.chat_message("user"):
         st.write(prompt)  
-        st.warning(disclaimer)   
 
 if write_message_audio:
     with st.chat_message("user"):
         st.write(text)   
 
-if write_message_image:
-    with st.chat_message("assistant"):
-        st.write(image_response.text.encode('latin1').decode('utf-8'))
-    
-write_message_image = False
+st.warning(disclaimer)   
 write_message_chat = False
 write_message_audio = False
 
 
 if st.session_state.messages[-1]["role"] != "assistant":
-    with st.chat_message("assistant"):
-        with st.spinner("Pensando..."):
-            response = generate_endpoint_response(urlEndpoint, mandar)
-            placeholder = st.empty()
-            # if response.status_code == 200:
-            #     response_json = response.json()
-            #     generated_text = response_json.get('generated_text', 'No generated text found')
-            # else:
-            #     generated_text = "Error en la solicitud: " + str(response.status_code)
-            response = response.json()["questions"][0]["answer"]
-            placeholder.markdown(response)
+    if len(st.session_state.messages) <= 2:
+        with st.chat_message("assistant"):
+            with st.spinner("Pensando..."):
+                response = generate_RIGA_response(urlRiga, mandar)
+                placeholder = st.empty()
+                response = response.json()["questions"][0]["answer"]
+                placeholder.markdown(response)
+
+    else:
+        with st.chat_message("assistant"):
+            with st.spinner("Pensando..."):
+                response = generate_MIXTRA_response(urlMixtra, mandar)
+                placeholder = st.empty()
+                response = response.json()["questions"][0]["answer"]
+                placeholder.markdown(response)
     message = {"role": "assistant", "content": response}
     st.session_state.messages.append(message)
     st.warning(disclaimer)
