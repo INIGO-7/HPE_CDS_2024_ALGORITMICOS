@@ -18,7 +18,7 @@ wound_translations = {
     "Abrasions": "Abrasiones",
     "Bruises": "Moretones",
     "Burns": "Quemaduras",
-    "Cuts": "Cortes",
+    "Cut": "Cortes",
     "Diabetic Wounds": "Heridas diabéticas",
     "Laceration": "Laceraciones",
     "Normal": "Normal",
@@ -152,6 +152,7 @@ def handle_image():
 
             if pred_class != "Normal":
                 answer, sources, topic = RAG_model.generate_answer(query = f"Eres un asistente médico, hispanohablante, que da respuestas concisas, precisas y completas a consultas médicas.\n\n He visto que tengo {wound_translations[pred_class].lower()} en mi piel. Rápido, qué hago?")
+                print(answer)
                 # Create the HTTP response with the appropriate headers
                 response_json ={"response": f"{wound_translations[pred_class]}: {answer}"}
                 http_response = make_response(jsonify(response_json))
@@ -167,7 +168,6 @@ def handle_image():
 
                 # Return the HTTP response
                 return http_response, 200
-        
     except Exception as e:
         # If an error occurs, return an error response with status code 400
         return jsonify({'error': str(e)}), 400
