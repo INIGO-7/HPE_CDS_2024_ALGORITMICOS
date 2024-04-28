@@ -33,11 +33,43 @@ write_message_image = False
 
 
 urlMixtra = "http://10.10.6.67:8080/api/converse"
-urlEndpoint = "http://10.10.6.67:8080/api/questions"
 urlImage = "http://10.10.6.67:8080/api/image"
 
-def generate_HPT_response(prompt_input):
-    string_dialogue = """Tú eres Assistant, un asistente médico para hispanohablantes siempre darás respuestas veraces, y completas en Español. \n\n"""
+# def generate_HPT_response(prompt_input):
+#     string_dialogue = """Tú eres Assistant, un asistente médico para hispanohablantes siempre darás respuestas veraces, y completas en Español. \n\n"""
+#     for dict_message in st.session_state.messages:
+#         if dict_message["role"] == "user":
+#             string_dialogue += "User: " + dict_message["content"] + "\n\n"
+#         else:
+#             string_dialogue += "Assistant: " + dict_message["content"] + "\n\n"
+
+#     print(f"{string_dialogue} Assistant: ")
+#     data = {
+#         "inputs": f"{string_dialogue}  Assistant: "
+#     }
+#     headers = {
+#         "Content-Type": "application/json"
+#     }
+#     response = requests.post(urlMixtra, json=data, headers=headers)
+#     return response
+
+
+# def generate_endpoint_response(url, prompt_input):
+
+#     data = {
+#         "questions": [
+#             {"id": 1, "question": prompt_input}
+#         ]
+#     }
+
+#     response_raw = requests.post(url, json=data)
+
+#     # response_text = response_raw["questions"][0]["answer"]
+#     return response_raw
+
+
+def generate_MIXTRA_response(url, prompt_input):
+    string_dialogue = """Tú eres Assistant, un asistente médico para hispanohablantes siempre darás respuestas veraces, completas y breves en Español. \n\n"""
     for dict_message in st.session_state.messages:
         if dict_message["role"] == "user":
             string_dialogue += "User: " + dict_message["content"] + "\n\n"
@@ -45,29 +77,15 @@ def generate_HPT_response(prompt_input):
             string_dialogue += "Assistant: " + dict_message["content"] + "\n\n"
 
     print(f"{string_dialogue} Assistant: ")
-    data = {
-        "inputs": f"{string_dialogue}  Assistant: "
-    }
-    headers = {
-        "Content-Type": "application/json"
-    }
-    response = requests.post(urlMixtra, json=data, headers=headers)
-    return response
-
-
-def generate_endpoint_response(url, prompt_input):
 
     data = {
         "questions": [
-            {"id": 1, "question": prompt_input}
+            {"id": 1, "question": f"{string_dialogue}  Assistant:  "}
         ]
     }
 
     response_raw = requests.post(url, json=data)
-
-    # response_text = response_raw["questions"][0]["answer"]
     return response_raw
-
 
 
 
@@ -171,6 +189,13 @@ if st.session_state.messages[-1]["role"] != "assistant":
                 
                 placeholder = st.empty()
 
+                placeholder.markdown(respuesta)
+    else:
+        with st.chat_message("assistant"):
+            with st.spinner("Pensando..."):
+                respuesta = generate_MIXTRA_response(urlMixtra, mandar)
+                placeholder = st.empty()
+                respuesta = respuesta.json()["questions"][0]["answer"]
                 placeholder.markdown(respuesta)
     message = {"role": "assistant", "content": respuesta}
     st.session_state.messages.append(message)
