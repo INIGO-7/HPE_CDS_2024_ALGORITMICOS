@@ -7,7 +7,7 @@ from langchain.prompts import ChatPromptTemplate
 class AugmentedGeneration:
 
     def __init__(self):
-        self.RES_PATH = "../res"
+        self.RES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'res')
         self.DOCS_PATH = os.path.join(self.RES_PATH, "docs")
         self.WELLNESS_PATH = os.path.join(self.DOCS_PATH, "Bienestar")
         self.PHYSICAL_HEALTH_PATH = os.path.join(self.DOCS_PATH, "Salud Fisica")

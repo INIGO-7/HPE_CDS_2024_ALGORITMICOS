@@ -2,10 +2,16 @@ from flask import Flask, request, jsonify, make_response
 import requests
 import json
 
+# import os
+# import sys
+
+# root_directory = os.path.dirname(os.path.abspath(__file__))
+# src_directory = os.path.join(root_directory, 'src')
+# sys.path.insert(0, src_directory)
+
 from src.augmented_generation import AugmentedGeneration
 
 app = Flask(__name__)
-
 
 ################### QUESTIONS ###################
 # DEFINE RAG MODEL -> questions
@@ -34,6 +40,8 @@ def handle_questions():
             "topic": topic,
             "answer": answer
             })
+
+        print(f"Questions: {questions}")
 
         # Construct the final response JSON
         response_json = {"questions": all_answers}
