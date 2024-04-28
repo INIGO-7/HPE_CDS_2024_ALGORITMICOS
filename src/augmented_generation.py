@@ -64,7 +64,7 @@ class AugmentedGeneration:
 
         sources = [doc.metadata.get("source", None) for doc, _score in results]
 
-        topic = model.predict(f"Considerando estas tres temáticas: Bienestar, Salud mental y Salud física, necesito que se \
+        topic = model.predict(f"Considerando estas cuatro temáticas: Bienestar, Salud mental, Salud física o No aplica, necesito que se \
                                     devuelva únicamente de resultado la temática a la que crees que pertenece el siguiente texto: {answer}")
 
         return (answer, sources, topic)
