@@ -107,62 +107,40 @@ for message in st.session_state.messages:
 with bottom():
     if len(st.session_state.messages) <= 1:
         with st.container():
-            left, right = st.columns([0.8, 0.2])
-            with left:
+            uploaded_file = st.file_uploader("Elige una imagen...", type=['jpg', 'jpeg', 'png'])
+            if uploaded_file is not None:
+                # Mostrar la imagen cargada
+                st.image(uploaded_file, caption='Imagen cargada.', use_column_width=True)
 
-                uploaded_file = st.file_uploader("Elige una imagen...", type=['jpg', 'jpeg', 'png'])
-                if uploaded_file is not None:
-                    # Mostrar la imagen cargada
-                    st.image(uploaded_file, caption='Imagen cargada.', use_column_width=True)
-
-                    # Enviar la imagen al servidor Flask
-                    if st.button('Enviar imagen'):
-                        files = {'image': uploaded_file.getvalue()}
-                        image_response_raw = requests.post(urlImage, files=files)
-                        image_response = image_response_raw.json()["response"]
-                        # Mostrar respuesta del servidor
-                        #st.text(image_response.text)
-                        write_message_image = True
-                        message = {"role": "assistant", "content": (image_response)}
-                        st.session_state.messages.append(message)
+                # Enviar la imagen al servidor Flask
+                if st.button('Enviar imagen'):
+                    files = {'image': uploaded_file.getvalue()}
+                    image_response_raw = requests.post(urlImage, files=files)
+                    image_response = image_response_raw.json()["response"]
+                    # Mostrar respuesta del servidor
+                    #st.text(image_response.text)
+                    write_message_image = True
+                    message = {"role": "assistant", "content": (image_response)}
+                    st.session_state.messages.append(message)
 
 
-    with st.container():
-        left, right = st.columns([0.8, 0.2])
-        with left:
-            if prompt := st.chat_input():
-                write_message_chat = True
-                print (type(prompt))
-                mandar=prompt
-                ocultar = True
-                st.session_state.messages.append({"role": "user", "content": prompt})     
-                
-        with right:
-            if text := speech_to_text(language='es-ES', use_container_width=True, just_once=True, key='STT'):
-                write_message_audio = True
-                print(type(text))
-                mandar=text
-                ocultar = True
-                st.session_state.messages.append({"role": "user", "content": text})
-                
-                
-              
-if write_message_chat:
+    
+
+if prompt := st.chat_input():
+    write_message_chat = True
+    print (type(prompt))
+    mandar=prompt
+    st.session_state.messages.append({"role": "user", "content": prompt})  
     with st.chat_message("user"):
-        st.write(prompt)  
-
-
-if write_message_audio:
-    with st.chat_message("user"):
-        st.write(text)   
+        st.write(prompt)     
+                
 
 if write_message_image:
     with st.chat_message("assistant"):
         st.write(image_response)
     
 write_message_image = False
-write_message_chat = False
-write_message_audio = False
+
 
 RES_PATH = "../res"
 DATASETS_PATH = os.path.join(RES_PATH, "datasets")
