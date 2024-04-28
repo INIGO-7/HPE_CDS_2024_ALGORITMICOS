@@ -179,9 +179,11 @@ class ConditionClassifierBERT:
     def get_first_aid(self, model_path: str, text: str):
         
         condition = self.classify(model_path, text)[0]['label']
-        return self.get_advice_by_tag(self.first_aid_data, condition)
+        return condition, self.get_advice_by_tag(self.first_aid_data, condition)
 
 if __name__ == "__main__":
+
+    prompt = "I was with my son in a boat and then he fell overboard. We rescued him from the water, but he is now unconscious. What should I do?"
 
     RES_PATH = os.path.join("../res")
     DATASETS_PATH = os.path.join(RES_PATH, "datasets")
@@ -191,6 +193,9 @@ if __name__ == "__main__":
     model_path = os.path.join(MODELS_PATH, "bert_finetuned")
 
     classifier = ConditionClassifierBERT(24, first_aid_path)
-    output = classifier.get_first_aid(model_path, "I was with my son in a boat and then he fell overboard. We rescued him from the water, but he is now unconscious. What should I do?")
+    condition, advice = classifier.get_first_aid(model_path, prompt)
 
-    print(output)
+    print("------------------------------")
+    print(f"Prompt: {prompt}")
+    print(f"Condition: {condition}")
+    print(f"Advice: {advice}")
