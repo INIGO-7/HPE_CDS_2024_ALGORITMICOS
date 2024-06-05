@@ -1,7 +1,7 @@
 import requests
 
 # URL del servicio al que se quiere acceder
-url = "http://10.10.6.10:8081/generate"
+url = ""
 
 # Datos JSON que se enviarán en la solicitud POST
 data = {
