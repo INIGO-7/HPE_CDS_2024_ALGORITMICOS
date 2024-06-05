@@ -29,11 +29,8 @@ write_message_chat = False
 write_message_audio = False
 write_message_image = False
 
-
-
-
-urlMixtra = "http://10.10.6.67:8080/api/converse"
-urlImage = "http://10.10.6.67:8080/api/image"
+urlMixtra = ""
+urlImage = ""
 
 # def generate_HPT_response(prompt_input):
 #     string_dialogue = """Tú eres Assistant, un asistente médico para hispanohablantes siempre darás respuestas veraces, y completas en Español. \n\n"""

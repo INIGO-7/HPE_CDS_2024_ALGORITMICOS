@@ -16,11 +16,8 @@ state = st.session_state
 write_message_chat = False
 write_message_audio = False
 
-
-
-
-urlMixtra = "http://10.10.6.67:8080/api/converse"
-urlRiga = "http://10.10.6.67:8080/api/questions"
+urlMixtra = ""
+urlRiga = ""
 
 def generate_MIXTRA_response(url, prompt_input):
     string_dialogue = """Tú eres Assistant, un asistente médico para hispanohablantes siempre darás respuestas veraces, completas y breves en Español. \n\n"""
