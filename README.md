@@ -4,11 +4,11 @@
 
 ## Equipo
 Presento el equipo: **_Algorrítmicos_**
-- Sara Hernández @saaraahdz
-- Aitor Hernández @aitortxuh
-- Jorge Alcorta @[jorgealcorta]([url](https://github.com/jorgealcorta))
-- Unai Igartua @Unaiigartua
-- Iñigo Fernández @INIGO-7
+- Sara Hernández [@saaraahdz](https://github.com/saaraahdz)
+- Aitor Hernández [@aitortxuh](https://github.com/aitortxuh)
+- Jorge Alcorta [@jorgealcorta](https://github.com/jorgealcorta)
+- Unai Igartua [@Unaiigartua](https://github.com/Unaiigartua)
+- Iñigo Fernández [@INIGO-7](https://github.com/INIGO-7)
 
 ## Contexto
 
