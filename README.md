@@ -6,7 +6,7 @@
 Presento el equipo: **_Algorrítmicos_**
 - Sara Hernández @saaraahdz
 - Aitor Hernández @aitortxuh
-- Jorge Alcorta @jorgealcorta
+- Jorge Alcorta @[jorgealcorta]([url](https://github.com/jorgealcorta))
 - Unai Igartua @Unaiigartua
 - Iñigo Fernández @INIGO-7
 
