@@ -85,7 +85,7 @@ def handle_conversation():
         all_answers = []
 
         # Perform subsequent requests for each question
-        generate_url = 'http://10.10.6.10:8083/generate'
+        generate_url = # Fill with your own LLM api
         headers = {"Content-Type": "application/json"}
 
         for question in questions:
