@@ -18,11 +18,13 @@ A lo largo de 6 meses, 300 estudiantes de más de 70 universidades compitieron p
 - En la segunda fase se requería diseñar una aplicación médica, desarrollando así mismo una pequeña demo. De los 25 equipos restantes en esta fase, solo pasamos 5.
 - Finalmente, mi equipo y yo logramos llegar al hackathon final en Madrid, ganando contra 4 equipos rivales después de la deliberación de varios jueces técnicos y no técnicos.
 
+Este repositorio contiene el código de la aplicación ganadora del hackathon.
+
 ## Reto
 
 El reto planteado en este hackathon fue desarrollar una aplicación médica que pudiera proporcionar recomendaciones en los ámbitos de salud física,
 salud mental y bienestar general. En 24 horas de programación ininterrumpida desarrollamos un modelo RAG (Retrieval-Augmented Generation) que ofrecía
-las recomendaciones, además de un módulo extra de primeros auxilios que pudiera ofrecer consejo en situaciones de emergencia, con input de texto, audio e imagen. 
+las recomendaciones a través de una API, además de un módulo extra de primeros auxilios que pudiera ofrecer consejo en situaciones de emergencia, con input de texto, audio e imagen. 
 
 ## Demo
 
