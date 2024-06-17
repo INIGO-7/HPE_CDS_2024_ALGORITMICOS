@@ -14,7 +14,7 @@ Presento el equipo: **_Algorrítmicos_**
 
 A lo largo de 6 meses, 300 estudiantes de más de 70 universidades compitieron por la oportunidad de participar en el hackathon final de HPE. El reto se dividía en tres fases:
 
-- Durante los primeros 4 meses de la competición, tuvimos que resolver un desafío de informática cada mes. No superar uno de estos desafíos implicaba la eliminación.
+- Durante los primeros 4 meses de la competición, tuvimos que resolver un desafío de ingeniería informática por cada mes. No superar uno de estos desafíos implicaba la eliminación.
 - En la segunda fase se requería diseñar una aplicación médica, desarrollando así mismo una pequeña demo. De los 25 equipos restantes en esta fase, solo pasamos 5.
 - Finalmente, mi equipo y yo logramos llegar al hackathon final en Madrid, ganando contra 4 equipos rivales después de la deliberación de varios jueces técnicos y no técnicos.
 
