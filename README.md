@@ -1,4 +1,4 @@
-# 🏆 Proyecto ganador del [HPE CDS Tech Challenge 2024](https://www.xataka.com/n/competicion-unica-para-atraer-talento-tecnologico-hackathon-final-hpe-cds-tech-challenge-premia-proyectos-que-buscan-ia-responsable) 🏆
+# 🏆 ¡Proyecto ganador del [HPE CDS Tech Challenge 2024](https://www.xataka.com/n/competicion-unica-para-atraer-talento-tecnologico-hackathon-final-hpe-cds-tech-challenge-premia-proyectos-que-buscan-ia-responsable)! 🏆
 
 ![Screenshot from Grabación de pantalla 2024-04-28 a las 13 34 54 mov - 1](https://github.com/INIGO-7/HACKATON_ALGORITMICOS/assets/58185185/53e0ccc1-0778-4e5f-af21-679d04b3f433)
 
